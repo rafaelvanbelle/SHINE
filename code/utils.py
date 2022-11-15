@@ -210,23 +210,7 @@ def to_weighted_csc(
 
 
 
-def to_hetero_csc(
-    data: HeteroData,
-    device: Optional[torch.device] = None,
-) -> Tuple[Dict[str, Tensor], Dict[str, Tensor], Dict[str, OptTensor]]:
-    # Convert the heterogeneous graph data into a suitable format for sampling
-    # (CSC format).
-    # Returns dictionaries holding `colptr` and `row` indices as well as edge
-    # permutations for each edge type, respectively.
-    # Since C++ cannot take dictionaries with tuples as key as input, edge type
-    # triplets are converted into single strings.
-    colptr_dict, row_dict, perm_dict = {}, {}, {}
 
-    for store in data.edge_stores:
-        key = edge_type_to_str(store._key)
-        colptr_dict[key], row_dict[key], perm_dict[key] = to_csc(store, device)
-
-    return colptr_dict, row_dict, perm_dict
 
 
 def to_weighted_hetero_csc(
