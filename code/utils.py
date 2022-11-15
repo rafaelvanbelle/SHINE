@@ -17,88 +17,10 @@ from torch_geometric.data import Data, HeteroData
 from torch_geometric.data.storage import EdgeStorage
 from torch_geometric.typing import OptTensor
 from copy import deepcopy
-from torch_geometric.utils import index_to_mask, maybe_num_nodes
+from torch_geometric.utils import bipartite_subgraph
 from torch_geometric.typing import EdgeType, OptTensor
 
-def bipartite_subgraph(
-    subset: Union[PairTensor, Tuple[List[int], List[int]]],
-    edge_index: Tensor,
-    edge_attr: Optional[Tensor] = None,
-    relabel_nodes: bool = False,
-    size: Tuple[int, int] = None,
-    return_edge_mask: bool = False,
-) -> Tuple[Tensor, Tensor]:
-    r"""Returns the induced subgraph of the bipartite graph
-    :obj:`(edge_index, edge_attr)` containing the nodes in :obj:`subset`.
-    Args:
-        subset (Tuple[Tensor, Tensor] or tuple([int],[int])): The nodes
-            to keep.
-        edge_index (LongTensor): The edge indices.
-        edge_attr (Tensor, optional): Edge weights or multi-dimensional
-            edge features. (default: :obj:`None`)
-        relabel_nodes (bool, optional): If set to :obj:`True`, the resulting
-            :obj:`edge_index` will be relabeled to hold consecutive indices
-            starting from zero. (default: :obj:`False`)
-        size (tuple, optional): The number of nodes.
-            (default: :obj:`None`)
-        return_edge_mask (bool, optional): If set to :obj:`True`, will return
-            the edge mask to filter out additional edge features.
-            (default: :obj:`False`)
-    :rtype: (:class:`LongTensor`, :class:`Tensor`)
-    Examples:
-        >>> edge_index = torch.tensor([[0, 5, 2, 3, 3, 4, 4, 3, 5, 5, 6],
-        ...                            [0, 0, 3, 2, 0, 0, 2, 1, 2, 3, 1]])
-        >>> edge_attr = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
-        >>> subset = (torch.tensor([2, 3, 5]), torch.tensor([2, 3]))
-        >>> bipartite_subgraph(subset, edge_index, edge_attr)
-        (tensor([[2, 3, 5, 5],
-                [3, 2, 2, 3]]),
-        tensor([ 3,  4,  9, 10]))
-        >>> bipartite_subgraph(subset, edge_index, edge_attr,
-        ...                    return_edge_mask=True)
-        (tensor([[2, 3, 5, 5],
-                [3, 2, 2, 3]]),
-        tensor([ 3,  4,  9, 10]),
-        tensor([False, False,  True,  True, False, False, False, False,
-                True,  True,  False]))
-    """
 
-    device = edge_index.device
-
-    if isinstance(subset[0], (list, tuple)):
-        subset = (torch.tensor(subset[0], dtype=torch.long, device=device),
-                  torch.tensor(subset[1], dtype=torch.long, device=device))
-
-    if subset[0].dtype == torch.bool or subset[0].dtype == torch.uint8:
-        size = subset[0].size(0), subset[1].size(0)
-    else:
-        if size is None:
-            size = (maybe_num_nodes(edge_index[0]),
-                    maybe_num_nodes(edge_index[1]))
-        subset = (index_to_mask(subset[0], size=size[0]),
-                  index_to_mask(subset[1], size=size[1]))
-
-    node_mask = subset
-    edge_mask = node_mask[0][edge_index[0]] & node_mask[1][edge_index[1]]
-    edge_index = edge_index[:, edge_mask]
-    edge_attr = edge_attr[edge_mask] if edge_attr is not None else None
-
-    if relabel_nodes:
-        node_idx_i = torch.zeros(node_mask[0].size(0), dtype=torch.long,
-                                 device=device)
-        node_idx_j = torch.zeros(node_mask[1].size(0), dtype=torch.long,
-                                 device=device)
-        node_idx_i[node_mask[0]] = torch.arange(node_mask[0].sum().item(),
-                                                device=device)
-        node_idx_j[node_mask[1]] = torch.arange(node_mask[1].sum().item(),
-                                                device=device)
-        edge_index = torch.stack(
-            [node_idx_i[edge_index[0]], node_idx_j[edge_index[1]]])
-
-    if return_edge_mask:
-        return edge_index, edge_attr, edge_mask
-    else:
-        return edge_index, edge_attr
         
 def edge_type_to_str(edge_type: Union[EdgeType, str]) -> str:
     # Since C++ cannot take dictionaries with tuples as key as input, edge type
