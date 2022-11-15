@@ -13,7 +13,7 @@ from torch import Tensor
 from torch_geometric.data import Data, HeteroData
 from torch_geometric.data.storage import EdgeStorage
 from torch_geometric.typing import OptTensor
-from torch_geometric.loader.utils import edge_type_to_str, to_csc
+from torch_geometric.sampler.utils import to_csc
 from copy import deepcopy
 from torch_geometric.utils import bipartite_subgraph
 
