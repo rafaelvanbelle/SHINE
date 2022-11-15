@@ -19,12 +19,9 @@ from torch_geometric.loader.base import DataLoaderIterator
 from torch_geometric.loader.utils import (filter_data,
                                           filter_hetero_data)
 
-from torch_geometric.sampler.utils import (
-    to_csc,
-    to_hetero_csc)
 
 
-from utils import to_weighted_csc, to_weighted_hetero_csc, edge_type_to_str
+from utils import to_csc, to_hetero_csc, to_weighted_csc, to_weighted_hetero_csc, edge_type_to_str
 from torch_geometric.typing import EdgeType, InputNodes
 
 NumNeighbors = Union[List[int], Dict[EdgeType, List[int]]]
