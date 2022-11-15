@@ -79,7 +79,7 @@ class NeighborSampler:
                 num_neighbors = {key: num_neighbors for key in self.edge_types}
             assert isinstance(num_neighbors, dict)
             self.num_neighbors = {
-                edge_type_to_str(key): value
+                key:value #edge_type_to_str(key): value
                 for key, value in num_neighbors.items()
             }
             
