@@ -17,7 +17,13 @@ from scipy.sparse import csc_matrix
 from torch_geometric.data import Data, HeteroData
 from torch_geometric.loader.base import DataLoaderIterator
 from torch_geometric.loader.utils import (edge_type_to_str, filter_data,
-                                          filter_hetero_data, to_csc, to_hetero_csc)
+                                          filter_hetero_data)
+
+from torch_geometric.sampler.utils import (
+    to_csc,
+    to_hetero_csc)
+
+
 from utils import to_weighted_csc, to_weighted_hetero_csc
 from torch_geometric.typing import EdgeType, InputNodes
 
