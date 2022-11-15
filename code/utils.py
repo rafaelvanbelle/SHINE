@@ -82,7 +82,7 @@ def to_hetero_csc(
     colptr_dict, row_dict, perm_dict = {}, {}, {}
 
     for store in data.edge_stores:
-        key = edge_type_to_str(store._key)
+        key = key #edge_type_to_str(store._key)
         out = to_csc(store, device, share_memory, is_sorted)
         colptr_dict[key], row_dict[key], perm_dict[key] = out
 
