@@ -3,6 +3,10 @@ import torch
 import numpy as np
 import operator
 
+from torch_geometric.sampler.utils import (
+    remap_keys
+)
+
 def custom_sample_fn(colptr, row_data, index, num_neighbors, replace=False, directed=True):
 
     if not isinstance(index, torch.LongTensor):
@@ -656,6 +660,10 @@ def custom_hetero_sample_fn(node_types,
         for k,v in dic.items():
             dic[k] = torch.tensor(v).to(torch.long)
     
+    print("remapping")
+    rows_dict=remap_keys(rows_dict, to_edge_type),
+    cols_dict=remap_keys(cols_dict, to_edge_type),
+    edges_dict=remap_keys(edges_dict, to_edge_type),
 
     return samples_dict, rows_dict, cols_dict, edges_dict
 
