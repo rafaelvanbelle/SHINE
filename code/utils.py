@@ -11,15 +11,13 @@ from torch import Tensor
 
 from torch_geometric.typing import PairTensor
 
-from .mask import index_to_mask
-from .num_nodes import maybe_num_nodes
 
 
 from torch_geometric.data import Data, HeteroData
 from torch_geometric.data.storage import EdgeStorage
 from torch_geometric.typing import OptTensor
 from copy import deepcopy
-from torch_geometric.utils import bipartite_subgraph
+from torch_geometric.utils import index_to_mask, maybe_num_nodes
 from torch_geometric.typing import EdgeType, OptTensor
 
 def bipartite_subgraph(
