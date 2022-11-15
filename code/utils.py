@@ -17,6 +17,13 @@ from torch_geometric.loader.utils import edge_type_to_str, to_csc
 from copy import deepcopy
 from torch_geometric.utils import bipartite_subgraph
 
+
+def edge_type_to_str(edge_type: Union[EdgeType, str]) -> str:
+    # Since C++ cannot take dictionaries with tuples as key as input, edge type
+    # triplets need to be converted into single strings.
+    return edge_type if isinstance(edge_type, str) else '__'.join(edge_type)
+
+
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
     def __init__(self, patience=7, verbose=False, delta=0, path='checkpoint.pt', trace_func=print):

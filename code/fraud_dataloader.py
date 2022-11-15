@@ -11,6 +11,7 @@ import pandas as pd
 from tqdm import tqdm
 import pathlib
 
+
 column_dict = {'id': 'TX_ID', 'sender': 'User', 'receiver': 'Merchant Name', 'label': 'Is Fraud?'}
 
 original_features = ['Amount', 'Insufficient Balance', 'Bad PIN',
