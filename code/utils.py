@@ -71,8 +71,7 @@ def to_hetero_csc(
     data: HeteroData,
     device: Optional[torch.device] = None,
     share_memory: bool = False,
-    is_sorted: bool = False,
-) -> Tuple[Dict[str, Tensor], Dict[str, Tensor], Dict[str, OptTensor]]:
+    is_sorted: bool = False):
     # Convert the heterogeneous graph data into a suitable format for sampling
     # (CSC format).
     # Returns dictionaries holding `colptr` and `row` indices as well as edge
