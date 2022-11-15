@@ -26,7 +26,7 @@ original_features = ['Amount', 'Insufficient Balance', 'Bad PIN',
        'MC_CONTINENT_SA', 'MC_CONTINENT_US'
        ]
 
-urls = {5: "https://www.googleapis.com/drive/v3/files/1bVsEMaQhnMgeuyaijJJ6awI9xN_LfLUC?alt=media&key=AIzaSyBA5Am3Lv6YXC6iBgld_OGy9ChZDoyYm90"}
+
 
 class FraudSubset(InMemoryDataset):
     def __init__(self, root, features=None, column_dict=None, features_requiring_scaling=None, file_name = 'data', weighted = False, transform=None, pre_transform=None, pre_filter=None):

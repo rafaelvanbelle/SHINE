@@ -6,88 +6,16 @@ import numpy as np
 import torch
 
 
-from typing import Dict, Optional, Tuple, Union, List
+from typing import Dict, Optional, Tuple, Union
+
 from torch import Tensor
-
-from torch_geometric.typing import PairTensor
-
-
 
 from torch_geometric.data import Data, HeteroData
 from torch_geometric.data.storage import EdgeStorage
 from torch_geometric.typing import OptTensor
+from torch_geometric.loader.utils import edge_type_to_str, to_csc
 from copy import deepcopy
 from torch_geometric.utils import bipartite_subgraph
-from torch_geometric.typing import EdgeType, OptTensor
-
-
-        
-def edge_type_to_str(edge_type: Union[EdgeType, str]) -> str:
-    # Since C++ cannot take dictionaries with tuples as key as input, edge type
-    # triplets need to be converted into single strings.
-    return edge_type if isinstance(edge_type, str) else '__'.join(edge_type)
-
-def to_csc(
-    data: Union[Data, EdgeStorage],
-    device: Optional[torch.device] = None,
-    share_memory: bool = False,
-    is_sorted: bool = False,
-) -> Tuple[Tensor, Tensor, OptTensor]:
-    # Convert the graph data into a suitable format for sampling (CSC format).
-    # Returns the `colptr` and `row` indices of the graph, as well as an
-    # `perm` vector that denotes the permutation of edges.
-    # Since no permutation of edges is applied when using `SparseTensor`,
-    # `perm` can be of type `None`.
-    perm: Optional[Tensor] = None
-
-    if hasattr(data, 'adj_t'):
-        colptr, row, _ = data.adj_t.csr()
-
-    elif hasattr(data, 'edge_index'):
-        (row, col) = data.edge_index
-        if not is_sorted:
-            size = data.size()
-            perm = (col * size[0]).add_(row).argsort()
-            row = row[perm]
-        colptr = torch.ops.torch_sparse.ind2ptr(col[perm], size[1])
-    else:
-        raise AttributeError("Data object does not contain attributes "
-                             "'adj_t' or 'edge_index'")
-
-    colptr = colptr.to(device)
-    row = row.to(device)
-    perm = perm.to(device) if perm is not None else None
-
-    if not colptr.is_cuda and share_memory:
-        colptr.share_memory_()
-        row.share_memory_()
-        if perm is not None:
-            perm.share_memory_()
-
-    return colptr, row, perm
-
-
-def to_hetero_csc(
-    data: HeteroData,
-    device: Optional[torch.device] = None,
-    share_memory: bool = False,
-    is_sorted: bool = False):
-    # Convert the heterogeneous graph data into a suitable format for sampling
-    # (CSC format).
-    # Returns dictionaries holding `colptr` and `row` indices as well as edge
-    # permutations for each edge type, respectively.
-    # Since C++ cannot take dictionaries with tuples as key as input, edge type
-    # triplets are converted into single strings.
-    colptr_dict, row_dict, perm_dict = {}, {}, {}
-
-    for store in data.edge_stores:
-        key = store._key #edge_type_to_str(store._key)
-        print(key)
-        out = to_csc(store, device, share_memory, is_sorted)
-        colptr_dict[key], row_dict[key], perm_dict[key] = out
-
-    return colptr_dict, row_dict, perm_dict
-
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
@@ -210,7 +138,23 @@ def to_weighted_csc(
 
 
 
+def to_hetero_csc(
+    data: HeteroData,
+    device: Optional[torch.device] = None,
+) -> Tuple[Dict[str, Tensor], Dict[str, Tensor], Dict[str, OptTensor]]:
+    # Convert the heterogeneous graph data into a suitable format for sampling
+    # (CSC format).
+    # Returns dictionaries holding `colptr` and `row` indices as well as edge
+    # permutations for each edge type, respectively.
+    # Since C++ cannot take dictionaries with tuples as key as input, edge type
+    # triplets are converted into single strings.
+    colptr_dict, row_dict, perm_dict = {}, {}, {}
 
+    for store in data.edge_stores:
+        key = edge_type_to_str(store._key)
+        colptr_dict[key], row_dict[key], perm_dict[key] = to_csc(store, device)
+
+    return colptr_dict, row_dict, perm_dict
 
 
 def to_weighted_hetero_csc(
@@ -248,6 +192,3 @@ def HeteroSubgraph(data, node_mask_dict, weighted=False):
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-
-    

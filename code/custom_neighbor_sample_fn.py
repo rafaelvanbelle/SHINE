@@ -3,10 +3,6 @@ import torch
 import numpy as np
 import operator
 
-from torch_geometric.sampler.utils import (
-    remap_keys
-)
-
 def custom_sample_fn(colptr, row_data, index, num_neighbors, replace=False, directed=True):
 
     if not isinstance(index, torch.LongTensor):
@@ -498,8 +494,8 @@ def custom_hetero_sample_fn(node_types,
     # Create a mapping to convert single string relations to edge type triplets:
     to_edge_type = {}
     for k in edge_types:
-        #to_edge_type[k[0] + "__" + k[1] + "__" + k[2]] = (k[0], k[1], k[2])
-        to_edge_type[k] = k
+        to_edge_type[k[0] + "__" + k[1] + "__" + k[2]] = (k[0], k[1], k[2])
+    
     #// Initialize some data structures for the sampling process:
     samples_dict = {}
     to_local_node_dict = {}
@@ -660,13 +656,7 @@ def custom_hetero_sample_fn(node_types,
         for k,v in dic.items():
             dic[k] = torch.tensor(v).to(torch.long)
     
-    #print("remapping")
 
-    #rows_dict=remap_keys(rows_dict, to_edge_type)
-    #cols_dict=remap_keys(cols_dict, to_edge_type)
-    #edges_dict=remap_keys(edges_dict, to_edge_type)
-
-    print(rows_dict.keys())
     return samples_dict, rows_dict, cols_dict, edges_dict
 
 
