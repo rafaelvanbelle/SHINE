@@ -16,6 +16,7 @@ from torch_geometric.typing import OptTensor
 from torch_geometric.sampler.utils import to_csc
 from copy import deepcopy
 from torch_geometric.utils import bipartite_subgraph
+from torch_geometric.typing import EdgeType, OptTensor
 
 
 def edge_type_to_str(edge_type: Union[EdgeType, str]) -> str:
