@@ -1,4 +1,4 @@
-# SHINE
+# SHINE ✨
 
 Code repository for the paper: SHINE: A Scalable Heterogeneous Inductive Graph
 Neural Network for Large Imbalanced Datasets
