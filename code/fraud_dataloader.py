@@ -9,9 +9,9 @@ import pathlib
 import gdown
 from torch.utils.data import Dataset
 from sklearn.preprocessing import MinMaxScaler
-from torch_geometric.data import InMemoryDataset, Data, HeteroData, Dataset, extract_zip
+from torch_geometric.data import InMemoryDataset, Data, HeteroData, Dataset, extract_zip, download_url
 
-file_ids = {5: "1bVsEMaQhnMgeuyaijJJ6awI9xN_LfLUC"}
+data_url = "https://zenodo.org/record/7376222/files/df00{}.zip?download=1"
 
 column_dict = {'id': 'TX_ID', 'sender': 'User',
                'receiver': 'Merchant Name', 'label': 'Is Fraud?'}
@@ -233,7 +233,7 @@ class HeteroFraudSubset(InMemoryDataset):
         self.features_requiring_scaling = features_requiring_scaling
         self.weighted = weighted
         self.subset = subset
-        #self.url = urls[subset]
+        self.url = data_url.format(self.subset)
         root_subset = os.path.join(root, str(subset))
         super().__init__(root_subset, transform, pre_transform, pre_filter)
 
@@ -247,9 +247,9 @@ class HeteroFraudSubset(InMemoryDataset):
         return ['subset'+str(self.subset) + '.pt']
 
     def download(self):
-        path = gdown.download(
-            id=file_ids[self.subset], output='./data/' + str(self.subset) + '/')
-        #path = download_url(self.url, self.raw_dir)
+        # path = gdown.download(
+        #    id=file_ids[self.subset], output='./data/' + str(self.subset) + '/')
+        path = download_url(self.url, self.raw_dir)
         extract_zip(path, self.raw_dir)
         os.unlink(path)
 
