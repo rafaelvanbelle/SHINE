@@ -4,3 +4,5 @@ __MACOSX/
 *.pyc
 checkpoint.pt
 .vscode/
+*.amlignore
+*.amltmp
