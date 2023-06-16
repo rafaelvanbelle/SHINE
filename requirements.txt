@@ -1,0 +1,9 @@
+numpy
+pandas
+tqdm
+torch
+scikit-learn
+pyarrow==12.0.1
+gdown==4.7.1
+scipy
+networkx
